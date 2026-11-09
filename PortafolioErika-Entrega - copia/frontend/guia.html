@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guía de defensa | Portafolio de Erika</title>
+  <meta name="description" content="Guía de defensa del recuperatorio de Programación Web: conceptos, ejemplos y referencias al código del portafolio.">
+  <link rel="shortcut icon" href="Img/Foto-perfil.jpeg" type="image/x-icon">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <header class="guia-hero">
+    <div class="guia-hero-contenido">
+      <p class="etiqueta">Recuperatorio · Programación Web 2026</p>
+      <h1>Guía de defensa del portafolio</h1>
+      <p>
+        Resumen de los temas pedidos en la presentación, con ejemplos tomados del proyecto real:
+        portfolio público + backend Node.js/Express + base de datos SQLite + autenticación,
+        roles y panel de administración.
+      </p>
+      <a class="guia-volver" href="index.html">← Volver al portafolio</a>
+    </div>
+  </header>
+
+  <main>
+
+    <nav class="indice" aria-label="Índice de la guía">
+      <h2>Contenido</h2>
+      <ol>
+        <li><a href="#pagina-sistema-aplicacion">Página web, sistema y aplicación</a></li>
+        <li><a href="#cliente-servidor">Modelo cliente-servidor</a></li>
+        <li><a href="#html">HTML</a></li>
+        <li><a href="#css">CSS</a></li>
+        <li><a href="#javascript-dom">JavaScript y DOM</a></li>
+        <li><a href="#js-typescript">JavaScript y TypeScript</a></li>
+        <li><a href="#http">Peticiones y respuestas HTTP</a></li>
+        <li><a href="#usuarios-sesiones">Manejo de usuarios y sesiones</a></li>
+        <li><a href="#demo">Recorrido de demostración en vivo</a></li>
+      </ol>
+    </nav>
+
+    <!-- ============================================================ -->
+    <section class="guia-seccion" id="pagina-sistema-aplicacion">
+      <h2>1. Página web, sistema y aplicación</h2>
+
+      <h3>¿Qué es cada uno?</h3>
+      <table class="tabla-guia">
+        <thead>
+          <tr><th>Concepto</th><th>Definición</th><th>Ejemplo</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Página web</strong></td>
+            <td>Documento HTML que el navegador descarga e interpreta. Muestra contenido y puede incluir estilos (CSS) y comportamiento (JavaScript).</td>
+            <td><code>frontend/index.html</code> del portafolio.</td>
+          </tr>
+          <tr>
+            <td><strong>Sistema</strong></td>
+            <td>Conjunto de componentes que interactúan con un objetivo común, con reglas, datos y permisos. Incluye frontend, backend, base de datos y usuarios.</td>
+            <td>El portafolio completo: sitio público + API + SQLite + login + roles + CRUD.</td>
+          </tr>
+          <tr>
+            <td><strong>Aplicación</strong></td>
+            <td>Software interactivo que permite al usuario realizar tareas. Puede ser web, de escritorio o móvil.</td>
+            <td>Aplicación web de gestión del portafolio: el admin crea, edita y elimina contenido.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>¿Qué tipo de proyecto desarrollé y qué presento?</h3>
+      <p>
+        Desarrollé una <strong>aplicación web</strong> (que también funciona como sistema de gestión)
+        para administrar un portafolio personal. El proyecto está separado en:
+      </p>
+      <ul>
+        <li><strong>Frontend:</strong> HTML, CSS y JavaScript (interfaz, validaciones, DOM, fetch).</li>
+        <li><strong>Backend:</strong> Node.js + Express, con rutas, controladores y middlewares.</li>
+        <li><strong>Base de datos:</strong> SQLite mediante <code>node:sqlite</code>.</li>
+        <li><strong>Seguridad:</strong> contraseñas con hash scrypt, sesiones con token y roles admin/visitante.</li>
+      </ul>
+      <p>
+        En la defensa presento: el <strong>portfolio público</strong> (proyectos publicados, habilidades y formación
+        cargados desde la base de datos), el <strong>login</strong>, la <strong>diferencia de permisos</strong> entre
+        administrador y visitante, y el <strong>panel de administración con tres CRUD</strong>:
+        proyectos, habilidades/tecnologías y formación académica.
+      </p>
+    </section>
+
+    <!-- ============================================================ -->
+    <section class="guia-seccion" id="cliente-servidor">
+      <h2>2. Modelo cliente-servidor</h2>
+
+      <p>
+        Es una arquitectura en la que un <strong>cliente</strong> pide recursos o acciones y un
+        <strong>servidor</strong> los procesa y responde. Se comunican mediante HTTP.
+      </p>
+      <ul>
+        <li><strong>Cliente:</strong> el navegador ejecutando HTML, CSS y JavaScript. Envía peticiones con <code>fetch</code>.</li>
+        <li><strong>Servidor:</strong> la aplicación Node.js + Express. Valida datos, consulta SQLite y responde en JSON.</li>
+        <li><strong>Base de datos:</strong> guarda usuarios, sesiones, proyectos, habilidades y formación.</li>
+      </ul>
+
+      <h3>Ejemplo real: cargar los proyectos publicados</h3>
+      <p>El frontend pide la lista de proyectos publicados:</p>
+      <pre class="codigo"><code>// frontend/js/script.js
+const proyectos = await api("/api/proyectos?estado=publicado");
+renderizarProyectos(proyectos, contenedor);</code></pre>
+
+      <p>La función <code>api()</code> arma la petición HTTP y agrega el token de sesión si existe:</p>
+      <pre class="codigo"><code>// frontend/js/script.js
+const respuesta = await fetch(API_BASE + ruta, {
+  ...opciones,
+  headers,
+  credentials: "include",
+});</code></pre>
+
+      <p>El servidor recibe la petición, revisa la sesión y el rol, consulta la base y responde:</p>
+      <pre class="codigo"><code>// backend/src/controllers/proyectos.controller.js
+if (!esAdmin(req)) {
+  const filas = db
+    .prepare("SELECT * FROM proyectos WHERE estado = 'publicado' ORDER BY id DESC")
+    .all();
+
+  return res.json(filas.map(filaAProyecto));
+}</code></pre>
+
+      <div class="ejemplo">
+        <strong>Intercambio completo:</strong><br>
+        <code>GET /api/proyectos?estado=publicado</code> →
+        respuesta <code>200 OK</code> con <code>Content-Type: application/json</code> y un arreglo
+        <code>[{ "id": 1, "nombre": "Clínica Dental", ... }]</code>.
+        El cliente recibe ese JSON y crea las tarjetas con <code>document.createElement()</code>.
+      </div>
+
+      <h3>Otro ejemplo: iniciar sesión</h3>
+      <p>
+        El cliente envía <code>POST /api/auth/login</code> con email/usuario y contraseña. El servidor
+        busca al usuario, verifica el hash, crea una sesión y devuelve <code>200</code> con el token.
+        Si las credenciales son incorrectas devuelve <code>401 Unauthorized</code>.
+      </p>
+    </section>
+
+    <!-- ============================================================ -->
+    <section class="guia-seccion" id="html">
+      <h2>3. HTML</h2>
+
+      <p>
+        <strong>HTML</strong> (HyperText Markup Language) es el lenguaje de marcado que define la
+        <strong>estructura y el contenido</strong> de una página web. El navegador lo lee y construye
+        el DOM. No es un lenguaje de programación: describe qué es cada elemento (título, párrafo, imagen, formulario).
+      </p>
+
+      <h3>Etiquetas básicas y dónde aparecen en el proyecto</h3>
+      <table class="tabla-guia">
+        <thead>
+          <tr><th>Etiqueta</th><th>Función</th><th>En el proyecto</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>&lt;!DOCTYPE html&gt;</code></td><td>Indica que el documento es HTML5.</td><td>Primera línea de <code>index.html</code>.</td></tr>
+          <tr><td><code>&lt;html lang="es"&gt;</code></td><td>Raíz del documento e idioma.</td><td>Todo el sitio está en español.</td></tr>
+          <tr><td><code>&lt;head&gt;</code></td><td>Metadatos: título, codificación, CSS, ícono.</td><td>Incluye <code>&lt;meta charset&gt;</code> y <code>&lt;link rel="stylesheet"&gt;</code>.</td></tr>
+          <tr><td><code>&lt;meta&gt;</code></td><td>Información para el navegador (charset, viewport, descripción).</td><td><code>charset="UTF-8"</code> y <code>viewport</code> responsive.</td></tr>
+          <tr><td><code>&lt;title&gt;</code></td><td>Título de la pestaña.</td><td>“Portafolio - Erika | Desarrollo Web”.</td></tr>
+          <tr><td><code>&lt;link&gt;</code></td><td>Vincula recursos externos, como la hoja de estilos.</td><td><code>link rel="stylesheet" href="css/style.css"</code>.</td></tr>
+          <tr><td><code>&lt;body&gt;</code></td><td>Contenido visible.</td><td>Contiene cabecera, secciones y pie.</td></tr>
+          <tr><td><code>&lt;header&gt;</code></td><td>Encabezado semántico.</td><td>Barra superior con marca, navegación y sesión.</td></tr>
+          <tr><td><code>&lt;nav&gt;</code></td><td>Conjunto de enlaces de navegación.</td><td>Menú a Inicio, Sobre mí, Proyectos, Formación, Contacto, Guía.</td></tr>
+          <tr><td><code>&lt;main&gt;</code></td><td>Contenido principal único de la página.</td><td>Envuelve todas las secciones del portafolio.</td></tr>
+          <tr><td><code>&lt;section&gt;</code></td><td>Agrupa contenido relacionado con un título.</td><td><code>#inicio</code>, <code>#sobre-mi</code>, <code>#proyectos</code>, <code>#admin</code>, etc.</td></tr>
+          <tr><td><code>&lt;h1&gt;…&lt;h3&gt;</code></td><td>Jerarquía de títulos.</td><td><code>&lt;h1&gt;Erika&lt;/h1&gt;</code>, títulos de sección y de proyectos.</td></tr>
+          <tr><td><code>&lt;p&gt;</code></td><td>Párrafo de texto.</td><td>Presentación, descripciones de proyectos.</td></tr>
+          <tr><td><code>&lt;img&gt;</code></td><td>Imagen (con <code>src</code> y <code>alt</code>).</td><td>Foto de perfil: <code>Img/Foto-perfil.jpeg</code>.</td></tr>
+          <tr><td><code>&lt;a&gt;</code></td><td>Hipervínculo.</td><td>Enlaces internos (<code>#contacto</code>) y externos (<code>target="_blank"</code>).</td></tr>
+          <tr><td><code>&lt;ul&gt; / &lt;li&gt;</code></td><td>Listas y sus ítems.</td><td>Habilidades y enlaces del pie.</td></tr>
+          <tr><td><code>&lt;form&gt;</code></td><td>Formulario que agrupa controles.</td><td>Contacto, login y formularios de administración.</td></tr>
+          <tr><td><code>&lt;label&gt;</code></td><td>Etiqueta asociada a un control (<code>for</code> = <code>id</code>).</td><td>Accesibilidad de todos los campos.</td></tr>
+          <tr><td><code>&lt;input&gt;</code></td><td>Campo de entrada; el <code>type</code> define el comportamiento.</td><td><code>text</code>, <code>email</code>, <code>password</code>, <code>url</code>, <code>month</code>, <code>hidden</code>, <code>checkbox</code>.</td></tr>
+          <tr><td><code>&lt;select&gt; / &lt;option&gt;</code></td><td>Lista desplegable.</td><td>Estado del proyecto, categoría y nivel.</td></tr>
+          <tr><td><code>&lt;textarea&gt;</code></td><td>Texto de varias líneas.</td><td>Mensaje de contacto y descripciones.</td></tr>
+          <tr><td><code>&lt;button&gt;</code></td><td>Botón interactivo.</td><td>Guardar, editar, cancelar, ingresar.</td></tr>
+          <tr><td><code>&lt;table&gt;</code></td><td>Datos tabulares.</td><td>Listados del panel de administración.</td></tr>
+          <tr><td><code>&lt;footer&gt;</code></td><td>Pie de página.</td><td>Créditos, navegación y año.</td></tr>
+          <tr><td><code>&lt;script&gt;</code></td><td>Incluye o referencia JavaScript.</td><td><code>js/script.js</code> al final del body.</td></tr>
+        </tbody>
+      </table>
+
+      <p><strong>HTML semántico:</strong> usar <code>header</code>, <code>nav</code>, <code>main</code>,
+        <code>section</code> y <code>footer</code> (en lugar de solo <code>div</code>) mejora la accesibilidad,
+        el SEO y hace el código más legible.</p>
+    </section>
+
+    <!-- ============================================================ -->
+    <section class="guia-seccion" id="css">
+      <h2>4. CSS</h2>
+
+      <p>
+        <strong>CSS</strong> (Cascading Style Sheets) es el lenguaje que da <strong>presentación visual</strong>
+        al HTML: colores, tipografías, tamaños, espacios, disposición y adaptación a distintas pantallas.
+        Funciona con reglas: <em>selector</em> + <em>propiedades</em> + <em>valores</em>.
+      </p>
+
+      <h3>Selectores</h3>
+      <table class="tabla-guia">
+        <thead><tr><th>Tipo</th><th>Ejemplo en el proyecto</th><th>Qué selecciona</th></tr></thead>
+        <tbody>
+          <tr><td>Etiqueta</td><td><code>body { ... }</code></td><td>Todos los elementos <code>&lt;body&gt;</code>.</td></tr>
+          <tr><td>Clase</td><td><code>.proyecto { ... }</code></td><td>Todos los elementos con <code>class="proyecto"</code>.</td></tr>
+          <tr><td>ID</td><td><code>#contacto { ... }</code></td><td>El elemento con <code>id="contacto"</code> (único).</td></tr>
+          <tr><td>Descendiente</td><td><code>.nav a { ... }</code></td><td>Los <code>&lt;a&gt;</code> dentro de <code>.nav</code>.</td></tr>
+          <tr><td>Pseudo-clase</td><td><code>.boton:hover { ... }</code></td><td>El botón cuando el mouse está encima.</td></tr>
+          <tr><td>Pseudo-elemento</td><td><code>.seccion h2::before { ... }</code></td><td>Inserta la barrita decorativa antes del título.</td></tr>
+          <tr><td>Combinación</td><td><code>.estado-publicado</code>, <code>.nivel-avanzado</code></td><td>Clases generadas según el dato (estado/nivel).</td></tr>
+        </tbody>
+      </table>
+
+      <p>
+        <strong>Especificidad:</strong> si dos reglas afectan al mismo elemento, gana la más específica
+        (ID &gt; clase &gt; etiqueta). Si empatan, gana la que aparece más abajo. Además existe la herencia
+        (por ejemplo, <code>font-family</code> del <code>body</code> se hereda).
+      </p>
+
+      <h3>Modelo de caja</h3>
+      <p>
+        Todo elemento es una caja formada por <strong>contenido → padding (relleno) → border (borde) →
+        margin (margen)</strong>. En el proyecto se usa <code>box-sizing: border-box</code>, lo que hace que
+        <code>width</code> incluya padding y borde; así los tamaños son predecibles.
+      </p>
+      <pre class="codigo"><code>/* frontend/css/style.css */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.panel {
+  background: var(--color-blanco);
+  border-radius: var(--radio);
+  padding: 22px;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.1);
+}</code></pre>
+
+      <h3>Posicionamiento</h3>
+      <ul>
+        <li><strong>static:</strong> posición normal del flujo (valor por defecto).</li>
+        <li><strong>relative:</strong> se desplaza respecto de su posición normal. Ejemplo: <code>.hero-foto</code>.</li>
+        <li><strong>absolute:</strong> se ubica respecto del ancestro posicionado más cercano. Ejemplo: la insignia “Disponible” dentro de la foto.</li>
+        <li><strong>fixed:</strong> queda fija respecto de la ventana. Ejemplo: el botón “↑”.</li>
+        <li><strong>sticky:</strong> se comporta normal hasta que se pega al hacer scroll. Ejemplo: la cabecera.</li>
+      </ul>
+      <pre class="codigo"><code>/* La cabecera queda pegada arriba */
+.cabecera {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+/* El contenedor es la referencia para el badge */
+.hero-foto { position: relative; }
+
+/* El badge se posiciona dentro de la foto */
+.hero-badge {
+  position: absolute;
+  bottom: 8px;
+  right: 4px;
+}
+
+/* El botón de volver arriba queda fijo en la ventana */
+.btn-subir {
+  position: fixed;
+  bottom: 22px;
+  right: 22px;
+}</code></pre>
+
+      <h3>Flexbox, Grid y responsive</h3>
+      <p>
+        <strong>Flexbox</strong> se usa para filas y alineación (por ejemplo <code>.barra</code>,
+        <code>.hero-contenido</code>, <code>.form-gestion</code>). <strong>Grid</strong> se usa para grillas
+        de columnas (por ejemplo <code>.proyectos</code>, <code>.sobre-grid</code>, <code>.formacion</code>).
+        Las <strong>media queries</strong> adaptan el sitio a pantallas chicas.
+      </p>
+      <pre class="codigo"><code>.proyectos {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+@media (max-width: 900px) {
+  .proyectos { grid-template-columns: 1fr; }
+  .sobre-grid { grid-template-columns: 1fr; }
+}</code></pre>
+    </section>
+
+    <!-- ============================================================ -->
+    <section class="guia-seccion" id="javascript-dom">
+      <h2>5. JavaScript y DOM</h2>
+
+      <p>
+        <strong>JavaScript</strong> es un lenguaje de programación que se ejecuta en el navegador
+        (y también en el servidor con Node.js). En una aplicación web permite <strong>interactividad</strong>:
+        responder a eventos, validar formularios, modificar la página y comunicarse con el servidor.
+      </p>
+
+      <h3>¿Qué es el DOM?</h3>
+      <p>
+        El <strong>DOM</strong> (Document Object Model) es la representación en forma de árbol que el navegador
+        construye a partir del HTML. Cada etiqueta es un <strong>nodo/elemento</strong> al que JavaScript puede
+        leer y modificar (texto, atributos, estilos, clases). Cuando el DOM cambia, la página se actualiza.
+      </p>
+      <pre class="codigo"><code>&lt;body&gt;
+  &lt;header&gt;...&lt;/header&gt;
+  &lt;main&gt;
+    &lt;section id="proyectos"&gt;
+      &lt;div id="listaProyectos"&gt;...&lt;/div&gt;
+    &lt;/section&gt;
+  &lt;/main&gt;
+&lt;/body&gt;</code></pre>
+
+      <h3>Uso en el proyecto</h3>
+      <ul>
+        <li><strong>Seleccionar elementos:</strong> <code>document.getElementById("listaProyectos")</code>.</li>
+        <li><strong>Escuchar eventos:</strong> <code>addEventListener("click", ...)</code>, <code>"submit"</code>, <code>"input"</code>.</li>
+        <li><strong>Crear elementos:</strong> <code>document.createElement("article")</code> y <code>appendChild()</code>.</li>
+        <li><strong>Cambiar contenido:</strong> <code>textContent</code> (seguro, no interpreta HTML).</li>
+        <li><strong>Cambiar clases/estado:</strong> <code>classList.toggle("oculto", ...)</code>.</li>
+        <li><strong>Evitar el envío tradicional:</strong> <code>evento.preventDefault()</code> y usar <code>fetch</code>.</li>
+      </ul>
+
+      <pre class="codigo"><code>// frontend/js/script.js — construir una tarjeta de proyecto en el DOM
+proyectos.forEach((proyecto, indice) => {
+  const articulo = crearElemento("article", "proyecto");
+
+  articulo.appendChild(
+    crearElemento("span", "proyecto-num", String(indice + 1).padStart(2, "0"))
+  );
+
+  articulo.appendChild(crearElemento("h3", null, proyecto.nombre));
+  articulo.appendChild(crearElemento("p", null, proyecto.descripcion));
+
+  contenedor.appendChild(articulo);
+});</code></pre>
+
+      <p>
+        En el login se ve el ciclo completo: el usuario envía el formulario, se llama a
+        <code>evento.preventDefault()</code>, se hace <code>fetch</code> al servidor, se guarda el token
+        y se actualiza la interfaz (chip de usuario, panel visible, etc.).
+      </p>
+    </section>
+
+    <!-- ============================================================ -->
+    <section class="guia-seccion" id="js-typescript">
+      <h2>6. JavaScript y TypeScript: diferencias</h2>
+
+      <table class="tabla-guia">
+        <thead><tr><th>Aspecto</th><th>JavaScript</th><th>TypeScript</th></tr></thead>
+        <tbody>
+          <tr><td>Tipado</td><td>Dinámico: el tipo se conoce en ejecución.</td><td>Estático: se declara y se verifica al compilar.</td></tr>
+          <tr><td>Errores</td><td>Muchos aparecen en tiempo de ejecución.</td><td>Muchos se detectan antes de ejecutar.</td></tr>
+          <tr><td>Extensiones</td><td><code>.js</code></td><td><code>.ts</code></td></tr>
+          <tr><td>Ejecución</td><td>El navegador/Node lo ejecuta directamente.</td><td>Se compila a JavaScript con <code>tsc</code>.</td></tr>
+          <tr><td>Tipos/interfaces</td><td>No tiene tipos declarativos.</td><td>Permite <code>interface</code>, <code>type</code>, genéricos, enums.</td></tr>
+          <tr><td>Ventaja principal</td><td>Simple, sin compilación.</td><td>Mayor seguridad y autocompletado en proyectos grandes.</td></tr>
+        </tbody>
+      </table>
+
+      <p>En este proyecto TypeScript se usa en el backend para los modelos y las validaciones:</p>
+      <pre class="codigo"><code>// backend/src/models/proyecto.ts
+export interface Proyecto {
+  id: number;
+  nombre: string;
+  descripcion: string;
+  tecnologias: string[];
+  imagenUrl: string | null;
+  enlaceUrl: string | null;
+  estado: EstadoProyecto;
+}
+
+export function validarProyecto(datos: Partial&lt;ProyectoEntrada&gt;): string[] {
+  const errores: string[] = [];
+  if (!datos.nombre || datos.nombre.trim().length &lt; 3) {
+    errores.push("El nombre debe tener al menos 3 caracteres.");
+  }
+  return errores;
+}</code></pre>
+
+      <p>
+        <code>tsc</code> compila <code>src/models/*.ts</code> a <code>dist/models/*.js</code> y los
+        controladores de Express consumen el resultado. El frontend se mantiene en JavaScript puro;
+        TypeScript no se ejecuta en el navegador directamente, sino que se transforma a JavaScript.
+      </p>
+    </section>
+
+    <!-- ============================================================ -->
+    <section class="guia-seccion" id="http">
+      <h2>7. Peticiones y respuestas HTTP</h2>
+
+      <p>
+        HTTP es el protocolo de comunicación cliente-servidor. Una petición tiene un <strong>método</strong>,
+        una <strong>URL</strong>, <strong>encabezados</strong> y, a veces, un <strong>cuerpo</strong>.
+        La respuesta tiene un <strong>código de estado</strong>, encabezados y un cuerpo (por ejemplo, JSON).
+      </p>
+
+      <h3>Métodos utilizados en el proyecto</h3>
+      <table class="tabla-guia">
+        <thead><tr><th>Método</th><th>Para qué sirve</th><th>Ejemplo en el proyecto</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>GET</strong></td>
+            <td>Consultar/leer un recurso sin modificarlo.</td>
+            <td><code>GET /api/proyectos?estado=publicado</code>, <code>GET /api/habilidades</code>, <code>GET /api/formacion</code>, <code>GET /api/auth/sesion</code>.</td>
+          </tr>
+          <tr>
+            <td><strong>POST</strong></td>
+            <td>Crear un recurso nuevo o iniciar una acción (login).</td>
+            <td><code>POST /api/auth/login</code>, <code>POST /api/proyectos</code>, <code>POST /api/habilidades</code>, <code>POST /api/formacion</code>.</td>
+          </tr>
+          <tr>
+            <td><strong>PUT</strong></td>
+            <td>Modificar/actualizar un recurso existente.</td>
+            <td><code>PUT /api/proyectos/3</code>, <code>PUT /api/habilidades/2</code>, <code>PUT /api/formacion/1</code>.</td>
+          </tr>
+          <tr>
+            <td><strong>DELETE</strong></td>
+            <td>Eliminar un recurso.</td>
+            <td><code>DELETE /api/proyectos/3</code>, <code>DELETE /api/habilidades/8</code>, <code>DELETE /api/formacion/2</code>.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Ejemplos de peticiones reales del frontend</h3>
+      <pre class="codigo"><code>// GET: listar habilidades
+const habilidades = await api("/api/habilidades");
+
+// POST: crear un proyecto (solo admin)
+await api("/api/proyectos", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    nombre: "Nuevo proyecto",
+    descripcion: "Descripción del proyecto",
+    tecnologias: "HTML, CSS",
+    estado: "borrador",
+  }),
+});
+
+// PUT: actualizar un proyecto existente
+await api("/api/proyectos/" + id, { method: "PUT", body: JSON.stringify(datos) });
+
+// DELETE: eliminar
+await api("/api/proyectos/" + id, { method: "DELETE" });</code></pre>
+
+      <h3>Ejemplo de request y response (login)</h3>
+      <pre class="codigo"><code>POST /api/auth/login HTTP/1.1
+Content-Type: application/json
+
+{ "identificador": "admin@erika.com", "password": "Admin123!" }
+
+--- Respuesta correcta ---
+HTTP/1.1 200 OK
+Content-Type: application/json
+Set-Cookie: sesion_portfolio=...; HttpOnly; SameSite=Lax
+
+{ "token": "9f3c...", "usuario": { "id": 1, "rol": "admin", ... } }
+
+--- Respuesta incorrecta ---
+HTTP/1.1 401 Unauthorized
+{ "error": "Usuario o contraseña incorrectos." }</code></pre>
+
+      <h3>Códigos de estado que usa el sistema</h3>
+      <table class="tabla-guia">
+        <thead><tr><th>Código</th><th>Significado</th><th>Cuándo aparece</th></tr></thead>
+        <tbody>
+          <tr><td><code>200 OK</code></td><td>Petición exitosa con contenido.</td><td>Listados, login, actualización.</td></tr>
+          <tr><td><code>201 Created</code></td><td>Recurso creado.</td><td>POST de proyecto, habilidad o formación.</td></tr>
+          <tr><td><code>204 No Content</code></td><td>Éxito sin cuerpo de respuesta.</td><td>DELETE y logout.</td></tr>
+          <tr><td><code>400 Bad Request</code></td><td>Datos inválidos.</td><td>Validaciones del backend (nombre corto, email mal formado, etc.).</td></tr>
+          <tr><td><code>401 Unauthorized</code></td><td>No autenticado o credenciales incorrectas.</td><td>Login fallido, operación sin sesión.</td></tr>
+          <tr><td><code>403 Forbidden</code></td><td>Autenticado pero sin permisos.</td><td>Un visitante intenta crear/editar/eliminar.</td></tr>
+          <tr><td><code>404 Not Found</code></td><td>Recurso inexistente.</td><td>ID que no existe, ruta de API desconocida.</td></tr>
+          <tr><td><code>500 Internal Server Error</code></td><td>Error no controlado del servidor.</td><td>Falla inesperada en el backend.</td></tr>
+        </tbody>
+      </table>
+
+      <p>
+        <strong>En el navegador:</strong> abrir DevTools → pestaña <em>Network</em>, iniciar sesión y
+        observar el método, la URL, los encabezados, el cuerpo y el código de estado de cada petición.
+        Es la forma más clara de demostrar el intercambio cliente-servidor en vivo.
+      </p>
+    </section>
+
+    <!-- ============================================================ -->
+    <section class="guia-seccion" id="usuarios-sesiones">
+      <h2>8. Manejo de usuarios y sesiones</h2>
+
+      <p>
+        El <strong>manejo de usuarios</strong> consiste en registrar identidades, validar credenciales y
+        asignar permisos. Una <strong>sesión</strong> es el estado que indica que un usuario ya se autenticó;
+        se mantiene entre peticiones para no pedir la contraseña cada vez.
+      </p>
+
+      <h3>Usuarios y roles</h3>
+      <ul>
+        <li><strong>Administrador:</strong> accede al panel y puede crear, consultar, modificar y eliminar proyectos, habilidades y formación.</li>
+        <li><strong>Visitante:</strong> accede al portfolio público y consulta proyectos publicados, habilidades y formación. No puede escribir.</li>
+        <li>No hay registro público: los usuarios se cargan en la base al iniciar (usuario administrador pre-registrado).</li>
+      </ul>
+
+      <h3>Contraseñas seguras (hash)</h3>
+      <p>
+        Las contraseñas <strong>no se guardan en texto plano</strong>. Se guarda un hash scrypt con una sal
+        aleatoria distinta por usuario: <code>scrypt$&lt;salt&gt;$&lt;hash&gt;</code>. Al iniciar sesión se vuelve
+        a calcular el hash con la misma sal y se comparan de forma segura.
+      </p>
+      <pre class="codigo"><code>// backend/src/seguridad.js
+function hashPassword(password) {
+  const salt = crypto.randomBytes(16).toString("hex");
+  const hash = crypto.scryptSync(password, salt, 64);
+  return `scrypt$${salt}$${hash.toString("hex")}`;
+}
+
+function verificarPassword(password, passwordGuardado) {
+  const [, salt, hashHex] = passwordGuardado.split("$");
+  const esperado = Buffer.from(hashHex, "hex");
+  const calculado = crypto.scryptSync(password, salt, 64);
+  return crypto.timingSafeEqual(esperado, calculado);
+}</code></pre>
+
+      <h3>¿Cómo funciona la sesión en este proyecto?</h3>
+      <ol>
+        <li>El usuario envía email/usuario y contraseña por <code>POST /api/auth/login</code>.</li>
+        <li>El backend busca al usuario en SQLite y verifica el hash.</li>
+        <li>Si coincide, genera un <strong>token aleatorio</strong> de 32 bytes y lo guarda en la tabla <code>sesiones</code> con fecha de expiración (8 horas).</li>
+        <li>Devuelve el token y además lo envía en una <strong>cookie httpOnly</strong> (JavaScript no puede leerla, lo que reduce el riesgo de XSS).</li>
+        <li>En cada petición posterior, el cliente envía el token: por cookie o con <code>Authorization: Bearer &lt;token&gt;</code>.</li>
+        <li>El middleware <code>sesionOpcional</code> valida el token y carga <code>req.sesion</code>.</li>
+        <li><code>requiereAdmin</code> verifica el rol antes de ejecutar escrituras; si no corresponde responde <strong>401</strong> o <strong>403</strong>.</li>
+        <li>Al cerrar sesión (<code>POST /api/auth/logout</code>) se elimina el registro de la base y se borra la cookie.</li>
+      </ol>
+
+      <pre class="codigo"><code>// backend/src/middlewares/auth.js
+function requiereAdmin(req, res, next) {
+  if (!req.sesion) {
+    return res.status(401).json({ error: "Debés iniciar sesión." });
+  }
+
+  if (req.sesion.usuario.rol !== "admin") {
+    return res.status(403).json({ error: "No tenés permisos de administrador." });
+  }
+
+  next();
+}</code></pre>
+
+      <div class="ejemplo">
+        <strong>Prueba clave para la defensa:</strong> iniciar sesión como visitante y, desde la consola
+        del navegador, intentar <code>POST /api/proyectos</code> con su token. El servidor responde
+        <strong>403 Forbidden</strong>: la seguridad no depende de ocultar botones, se valida en el backend.
+      </div>
+
+      <p>
+        <strong>Diferencia entre autenticación y autorización:</strong> autenticación responde
+        “¿quién sos?” (login); autorización responde “¿qué podés hacer?” (rol y permisos).
+      </p>
+    </section>
+
+    <!-- ============================================================ -->
+    <section class="guia-seccion" id="demo">
+      <h2>9. Recorrido de demostración en vivo</h2>
+
+      <p>Orden sugerido para mostrar el proyecto durante la defensa:</p>
+      <ol>
+        <li><strong>Abrir el sitio público</strong> en <code>http://localhost:3000</code>: mostrar proyectos publicados, habilidades y formación traídos de la base.</li>
+        <li><strong>Abrir DevTools → Network</strong> y recargar: señalar los <code>GET</code> a <code>/api/proyectos?estado=publicado</code>, <code>/api/habilidades</code> y <code>/api/formacion</code>, con sus respuestas JSON.</li>
+        <li><strong>Ingresar como administrador</strong> (<code>admin@erika.com</code> / <code>Admin123!</code>): mostrar el <code>POST /api/auth/login</code> (200), el token y el panel que aparece.</li>
+        <li><strong>Crear un proyecto</strong>: mostrar <code>POST /api/proyectos</code> (201), la validación del backend y el nuevo registro en la tabla.</li>
+        <li><strong>Editar</strong> el proyecto: mostrar <code>PUT /api/proyectos/:id</code> (200). <strong>Eliminarlo</strong>: mostrar <code>DELETE</code> (204).</li>
+        <li><strong>Repetir el CRUD</strong> con una habilidad y con un registro de formación.</li>
+        <li><strong>Cerrar sesión</strong>: mostrar <code>POST /api/auth/logout</code> (204) y cómo desaparece el panel.</li>
+        <li><strong>Ingresar como visitante</strong> (<code>visitante@erika.com</code> / <code>Visita123!</code>): no aparece el panel. En consola, intentar un <code>POST</code> o <code>DELETE</code> y mostrar el <strong>403</strong>.</li>
+        <li><strong>Mostrar el código</strong>: HTML semántico, CSS (modelo de caja y posicionamiento), JavaScript/DOM, modelos TypeScript, rutas, controladores, middleware y esquema SQLite.</li>
+      </ol>
+
+      <h3>Archivos clave para señalar en el código</h3>
+      <table class="tabla-guia">
+        <thead><tr><th>Tema</th><th>Archivo</th></tr></thead>
+        <tbody>
+          <tr><td>HTML y estructura</td><td><code>frontend/index.html</code></td></tr>
+          <tr><td>CSS (selectores, caja, posicionamiento)</td><td><code>frontend/css/style.css</code></td></tr>
+          <tr><td>JavaScript, DOM, fetch, sesión</td><td><code>frontend/js/script.js</code></td></tr>
+          <tr><td>Servidor Express y CORS</td><td><code>backend/src/server.js</code></td></tr>
+          <tr><td>Rutas de la API</td><td><code>backend/src/routes/*.routes.js</code></td></tr>
+          <tr><td>Lógica CRUD</td><td><code>backend/src/controllers/*.controller.js</code></td></tr>
+          <tr><td>Autenticación y roles</td><td><code>backend/src/auth.js</code>, <code>backend/src/middlewares/auth.js</code></td></tr>
+          <tr><td>Hash de contraseñas</td><td><code>backend/src/seguridad.js</code></td></tr>
+          <tr><td>Base de datos y tablas</td><td><code>backend/src/db.js</code></td></tr>
+          <tr><td>TypeScript (modelos y validación)</td><td><code>backend/src/models/*.ts</code></td></tr>
+        </tbody>
+      </table>
+
+      <p>
+        <strong>Credenciales de demostración:</strong> admin <code>admin@erika.com</code> / <code>Admin123!</code>
+        · visitante <code>visitante@erika.com</code> / <code>Visita123!</code>
+      </p>
+    </section>
+
+  </main>
+
+  <footer class="pie">
+    <span>Portafolio de Erika · Guía de defensa</span>
+    <nav class="pie-nav">
+      <a href="index.html">Volver al portafolio</a>
+      <a href="#pagina-sistema-aplicacion">Inicio de la guía</a>
+    </nav>
+    <span>INCADE · 2026</span>
+  </footer>
+
+</body>
+</html>

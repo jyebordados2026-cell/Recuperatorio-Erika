@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Portafolio web de Erika: proyectos, habilidades y formación. Incluye inicio de sesión, roles y panel de administración.">
+  <title>Portafolio - Erika | Desarrollo Web</title>
+  <link rel="shortcut icon" href="Img/Foto-perfil.jpeg" type="image/x-icon">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <header class="cabecera">
+    <div class="barra">
+      <a class="marca" href="#inicio">Erika<span>.</span></a>
+
+      <nav class="nav" id="navPrincipal">
+        <a href="#inicio">Inicio</a>
+        <a href="#sobre-mi">Sobre mí</a>
+        <a href="#proyectos">Proyectos</a>
+        <a href="#formacion">Formación</a>
+        <a href="#contacto">Contacto</a>
+        <a href="guia.html">Guía</a>
+      </nav>
+
+      <div class="sesion">
+        <button id="btnAbrirLogin" class="boton boton-mini boton-sesion" type="button">Ingresar</button>
+
+        <div id="chipUsuario" class="chip-usuario oculto">
+          <span class="chip-rol" id="chipRol">Admin</span>
+          <span class="chip-nombre" id="chipNombre">Erika</span>
+          <button id="btnIrPanel" class="boton boton-mini boton-claro" type="button">Panel</button>
+          <button id="btnSalir" class="boton boton-mini boton-peligro" type="button">Salir</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ============================ INICIO ============================ -->
+    <section id="inicio" class="hero">
+      <div class="hero-contenido">
+        <figure class="hero-foto">
+          <img src="Img/Foto-perfil.jpeg" alt="Foto de Erika">
+          <span class="hero-badge">Disponible</span>
+        </figure>
+
+        <div class="hero-texto">
+          <p class="saludo">Hola, soy</p>
+          <h1>Erika</h1>
+          <p>Estudiante de la carrera GPI en INCADE. Me gusta aprender cosas nuevas y convertir ideas en sitios web funcionales.</p>
+          <p class="interes"><strong>Área de interés:</strong> Diseño de interfaces y desarrollo web.</p>
+          <div class="hero-acciones">
+            <button class="boton" id="btnProyectos" type="button">Ver mis proyectos</button>
+            <a class="boton boton-fantasma" href="#contacto">Contactarme</a>
+            <a class="boton boton-fantasma" href="guia.html">Guía de defensa</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ SOBRE MÍ ============================ -->
+    <section id="sobre-mi" class="seccion">
+      <h2>Sobre mí</h2>
+
+      <div class="sobre-grid">
+        <div class="panel">
+          <h3>Presentación</h3>
+          <p>Estudiante de la carrera GPI ☻ Me gusta aprender y hacer proyectos para practicar lo que veo en clase.</p>
+          <p id="infoExtra" class="oculto">También me interesan el diseño, la música y el trabajo en equipo. Este portafolio incluye un backend con base de datos, autenticación y un panel para administrar el contenido.</p>
+          <button id="btnVerMas" class="boton boton-claro" type="button">Ver más</button>
+        </div>
+
+        <div class="panel">
+          <h3>Habilidades y tecnologías</h3>
+          <p class="panel-nota">Se cargan desde la API (<code>/api/habilidades</code>) y se administran desde el panel.</p>
+          <ul class="habilidades" id="listaHabilidades">
+            <li class="cargando">Cargando habilidades...</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ PROYECTOS ============================ -->
+    <section id="proyectos" class="seccion">
+      <h2>Mis Proyectos</h2>
+      <p class="seccion-subtitulo">Proyectos publicados cargados desde la base de datos</p>
+
+      <div class="proyectos" id="listaProyectos">
+        <p class="cargando">Cargando proyectos...</p>
+      </div>
+    </section>
+
+    <!-- ============================ FORMACIÓN ============================ -->
+    <section id="formacion" class="seccion">
+      <h2>Formación académica</h2>
+      <p class="seccion-subtitulo">Trayectoria educativa cargada desde la base de datos</p>
+
+      <div class="formacion" id="listaFormacion">
+        <p class="cargando">Cargando formación...</p>
+      </div>
+    </section>
+
+    <!-- ============================ CONTACTO ============================ -->
+    <section id="contacto" class="seccion">
+      <h2>Contacto</h2>
+
+      <form id="formContacto" novalidate>
+        <div class="fila">
+          <div class="campo">
+            <label for="nombre">Nombre</label>
+            <input type="text" id="nombre" name="nombre" autocomplete="name">
+            <span class="error" id="errorNombre" hidden></span>
+          </div>
+
+          <div class="campo">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" autocomplete="email">
+            <span class="error" id="errorEmail" hidden></span>
+          </div>
+        </div>
+
+        <div class="campo">
+          <label for="mensaje">Mensaje</label>
+          <textarea id="mensaje" name="mensaje" rows="5"></textarea>
+          <span class="contador" id="contador">0 caracteres</span>
+          <span class="error" id="errorMensaje" hidden></span>
+        </div>
+
+        <button class="boton" type="submit">Enviar</button>
+        <p id="avisoExito" class="aviso oculto">Mensaje validado correctamente. Gracias por escribir.</p>
+      </form>
+    </section>
+
+    <!-- ============================ PANEL DE ADMINISTRACIÓN ============================ -->
+    <section id="admin" class="seccion admin oculto">
+      <div class="admin-cabecera">
+        <div>
+          <p class="etiqueta">Panel de administración</p>
+          <h2>Gestión de contenidos</h2>
+          <p class="admin-sesion">
+            Sesión: <strong id="adminNombre">—</strong>
+            · Rol: <span class="chip-rol" id="adminRol">—</span>
+          </p>
+        </div>
+        <a class="boton boton-fantasma-violeta boton-mini" href="#inicio">Ver sitio público</a>
+      </div>
+
+      <div class="tabs" role="tablist" aria-label="Secciones de administración">
+        <button class="tab activo" type="button" data-tab="proyectos" role="tab" aria-selected="true">Proyectos</button>
+        <button class="tab" type="button" data-tab="habilidades" role="tab" aria-selected="false">Habilidades</button>
+        <button class="tab" type="button" data-tab="formacion" role="tab" aria-selected="false">Formación</button>
+      </div>
+
+      <!-- ---------- TAB PROYECTOS ---------- -->
+      <div class="tab-panel" id="tab-proyectos" role="tabpanel">
+        <div class="gestion-panel">
+          <div class="gestion-header">
+            <h3 id="tituloGestion">Agregar nuevo proyecto</h3>
+            <span class="gestion-tag">CRUD</span>
+          </div>
+
+          <form id="formProyecto" novalidate class="form-gestion">
+            <input type="hidden" id="proyectoId">
+
+            <div class="fila">
+              <div class="campo">
+                <label for="pNombre">Nombre del proyecto</label>
+                <input type="text" id="pNombre" name="nombre">
+              </div>
+              <div class="campo">
+                <label for="pEstado">Estado</label>
+                <select id="pEstado" name="estado">
+                  <option value="publicado">Publicado</option>
+                  <option value="en-desarrollo">En desarrollo</option>
+                  <option value="borrador">Borrador</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="campo">
+              <label for="pDescripcion">Descripción</label>
+              <textarea id="pDescripcion" name="descripcion" rows="3"></textarea>
+            </div>
+
+            <div class="campo">
+              <label for="pTecnologias">Tecnologías (separadas por coma)</label>
+              <input type="text" id="pTecnologias" name="tecnologias" placeholder="HTML, CSS, JavaScript">
+            </div>
+
+            <div class="fila">
+              <div class="campo">
+                <label for="pImagen">URL de imagen (opcional)</label>
+                <input type="url" id="pImagen" name="imagenUrl" placeholder="https://...">
+              </div>
+              <div class="campo">
+                <label for="pEnlace">URL de enlace (opcional)</label>
+                <input type="url" id="pEnlace" name="enlaceUrl" placeholder="https://github.com/...">
+              </div>
+            </div>
+
+            <span class="error" id="errorProyecto" hidden></span>
+
+            <div class="gestion-acciones">
+              <button class="boton" type="submit" id="btnGuardarProyecto">Guardar proyecto</button>
+              <button class="boton boton-fantasma-violeta" type="button" id="btnCancelarEdicion" hidden>Cancelar edición</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="tabla-panel">
+          <h3>Proyectos cargados</h3>
+          <div class="tabla-scroll">
+            <table class="tabla">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Estado</th>
+                  <th>Tecnologías</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="tablaProyectos">
+                <tr><td colspan="4" class="tabla-vacia">Cargando...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ---------- TAB HABILIDADES ---------- -->
+      <div class="tab-panel oculto" id="tab-habilidades" role="tabpanel">
+        <div class="gestion-panel">
+          <div class="gestion-header">
+            <h3 id="tituloHabilidad">Agregar habilidad o tecnología</h3>
+            <span class="gestion-tag">CRUD</span>
+          </div>
+
+          <form id="formHabilidad" novalidate class="form-gestion">
+            <input type="hidden" id="habilidadId">
+
+            <div class="fila">
+              <div class="campo">
+                <label for="hNombre">Nombre</label>
+                <input type="text" id="hNombre" name="nombre" placeholder="HTML, React, SQLite...">
+              </div>
+              <div class="campo">
+                <label for="hCategoria">Categoría</label>
+                <select id="hCategoria" name="categoria">
+                  <option value="lenguaje">Lenguaje de programación</option>
+                  <option value="framework">Framework</option>
+                  <option value="herramienta">Herramienta</option>
+                  <option value="base-de-datos">Base de datos</option>
+                  <option value="otro">Otro</option>
+                </select>
+              </div>
+              <div class="campo">
+                <label for="hNivel">Nivel de conocimiento</label>
+                <select id="hNivel" name="nivel">
+                  <option value="basico">Básico</option>
+                  <option value="intermedio">Intermedio</option>
+                  <option value="avanzado">Avanzado</option>
+                </select>
+              </div>
+            </div>
+
+            <span class="error" id="errorHabilidad" hidden></span>
+
+            <div class="gestion-acciones">
+              <button class="boton" type="submit" id="btnGuardarHabilidad">Guardar habilidad</button>
+              <button class="boton boton-fantasma-violeta" type="button" id="btnCancelarHabilidad" hidden>Cancelar edición</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="tabla-panel">
+          <h3>Habilidades cargadas</h3>
+          <div class="tabla-scroll">
+            <table class="tabla">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Categoría</th>
+                  <th>Nivel</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="tablaHabilidades">
+                <tr><td colspan="4" class="tabla-vacia">Cargando...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ---------- TAB FORMACIÓN ---------- -->
+      <div class="tab-panel oculto" id="tab-formacion" role="tabpanel">
+        <div class="gestion-panel">
+          <div class="gestion-header">
+            <h3 id="tituloFormacion">Agregar formación académica</h3>
+            <span class="gestion-tag">CRUD</span>
+          </div>
+
+          <form id="formFormacion" novalidate class="form-gestion">
+            <input type="hidden" id="formacionId">
+
+            <div class="fila">
+              <div class="campo">
+                <label for="fInstitucion">Institución educativa</label>
+                <input type="text" id="fInstitucion" name="institucion" placeholder="INCADE">
+              </div>
+              <div class="campo">
+                <label for="fTitulo">Título, carrera o curso</label>
+                <input type="text" id="fTitulo" name="titulo" placeholder="Carrera GPI">
+              </div>
+            </div>
+
+            <div class="campo">
+              <label for="fDescripcion">Descripción</label>
+              <textarea id="fDescripcion" name="descripcion" rows="3"></textarea>
+            </div>
+
+            <div class="fila">
+              <div class="campo">
+                <label for="fFechaInicio">Fecha de inicio</label>
+                <input type="month" id="fFechaInicio" name="fechaInicio">
+              </div>
+              <div class="campo">
+                <label for="fFechaFin">Fecha de finalización</label>
+                <input type="month" id="fFechaFin" name="fechaFin">
+              </div>
+            </div>
+
+            <label class="check">
+              <input type="checkbox" id="fEnCurso" name="enCurso">
+              Actualmente en curso (sin fecha de finalización)
+            </label>
+
+            <span class="error" id="errorFormacion" hidden></span>
+
+            <div class="gestion-acciones">
+              <button class="boton" type="submit" id="btnGuardarFormacion">Guardar formación</button>
+              <button class="boton boton-fantasma-violeta" type="button" id="btnCancelarFormacion" hidden>Cancelar edición</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="tabla-panel">
+          <h3>Formación cargada</h3>
+          <div class="tabla-scroll">
+            <table class="tabla">
+              <thead>
+                <tr>
+                  <th>Institución</th>
+                  <th>Título / carrera</th>
+                  <th>Fechas</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="tablaFormacion">
+                <tr><td colspan="4" class="tabla-vacia">Cargando...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="pie">
+    <span>Portafolio de Erika</span>
+    <nav class="pie-nav">
+      <a href="#inicio">Inicio</a>
+      <a href="#sobre-mi">Sobre mí</a>
+      <a href="#proyectos">Proyectos</a>
+      <a href="#formacion">Formación</a>
+      <a href="#contacto">Contacto</a>
+      <a href="guia.html">Guía de defensa</a>
+    </nav>
+    <span>INCADE · 2026</span>
+  </footer>
+
+  <button id="btnSubir" class="btn-subir" type="button" aria-label="Volver arriba">↑</button>
+
+  <!-- ============================ DIÁLOGO DE LOGIN ============================ -->
+  <dialog id="dialogoLogin" class="dialogo">
+    <form id="formLogin" novalidate>
+      <div class="dialogo-header">
+        <h2>Iniciar sesión</h2>
+        <button type="button" class="dialogo-cerrar" id="btnCerrarLogin" aria-label="Cerrar">×</button>
+      </div>
+
+      <p class="dialogo-texto">Accedé al panel de administración con tu email o nombre de usuario.</p>
+
+      <div class="campo">
+        <label for="loginIdentificador">Email o nombre de usuario</label>
+        <input type="text" id="loginIdentificador" name="identificador" autocomplete="username" placeholder="admin@erika.com">
+      </div>
+
+      <div class="campo">
+        <label for="loginPassword">Contraseña</label>
+        <input type="password" id="loginPassword" name="password" autocomplete="current-password" placeholder="••••••••">
+      </div>
+
+      <p class="error" id="loginError" hidden></p>
+
+      <button class="boton boton-ancho" type="submit" id="btnIngresar">Ingresar</button>
+
+      <div class="credenciales-demo">
+        <p><strong>Cuentas de demostración</strong></p>
+        <p>Admin: <code>admin@erika.com</code> / <code>Admin123!</code></p>
+        <p>Visitante: <code>visitante@erika.com</code> / <code>Visita123!</code></p>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" hidden></div>
+
+  <script src="js/script.js"></script>
+</body>
+</html>

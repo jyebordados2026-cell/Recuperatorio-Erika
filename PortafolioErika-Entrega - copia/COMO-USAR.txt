@@ -1,0 +1,61 @@
+PORTAFOLIO WEB - ERIKA
+======================
+
+CÓMO ABRIR EL PROYECTO EN 3 PASOS
+---------------------------------
+
+1) Abrir una terminal (PowerShell) y entrar a la carpeta backend:
+
+   cd backend
+
+2) Iniciar el servidor:
+
+   npm.cmd start
+
+   Si PowerShell bloquea npm, usar directamente:
+
+   node src/server.js
+
+3) Abrir en el navegador:
+
+   http://localhost:3000
+
+   Guía de defensa:
+   http://localhost:3000/guia.html
+
+
+CUENTAS DE DEMOSTRACIÓN
+-----------------------
+
+Administrador:
+   Email:       admin@erika.com
+   Usuario:     erika
+   Contraseña:  Admin123!
+
+Visitante:
+   Email:       visitante@erika.com
+   Usuario:     visitante
+   Contraseña:  Visita123!
+
+
+QUÉ INCLUYE
+-----------
+
+- Portfolio público (proyectos, habilidades y formación desde la base de datos).
+- Login con email o usuario y contraseña.
+- Contraseñas guardadas con hash scrypt (nunca en texto plano).
+- Sesiones con token y vencimiento de 8 horas.
+- Roles: administrador y visitante.
+- Panel de administración con CRUD de:
+   * Proyectos
+   * Habilidades y tecnologías
+   * Formación académica
+- Guía de defensa con todos los temas del recuperatorio.
+
+REQUISITO: Node.js 22 o superior.
+La carpeta node_modules ya está incluida, no hace falta instalar nada.
+
+Para reiniciar la base de datos: detener el servidor, borrar
+backend/database/portfolio.db y volver a iniciar.
+
+Más información en README.md
